@@ -1,0 +1,6 @@
+*~
+#*#
+*.o
+/ciphertab.c
+/config.h
+/selftest
