@@ -26,7 +26,6 @@
  *  http://groups.google.com/group/sci.crypt/msg/10a300c9d21afca0
  */
 
-#include "config.h"
 #include "ciphers.h"
 
 #include <stdbool.h>

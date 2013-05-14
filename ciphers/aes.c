@@ -27,7 +27,6 @@
  *  http://csrc.nist.gov/publications/fips/fips197/fips-197.pdf
  */
 
-#include "config.h"
 #include "ciphers.h"
 
 #include <stdbool.h>

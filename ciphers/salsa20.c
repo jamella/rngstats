@@ -4,7 +4,6 @@
  * Note that the IV is wired to all bits zero.
  */
 
-#include "config.h"
 #include "ciphers.h"
 
 #include <limits.h>

@@ -1,5 +1,5 @@
 /*
- *  RNGstats main program.
+ *  RNGstats selftest program.
  *  Copyright 2013 Zack Weinberg <zackw@panix.com>
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -17,9 +17,8 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "config.h"
-#include "ciphers.h"
 #include "worker.h"
+#include "ciphers.h"
 
 #include <stdio.h>
 

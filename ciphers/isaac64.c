@@ -5,7 +5,6 @@ By Bob Jenkins, 1996.  Public Domain.
 ------------------------------------------------------------------------------
 */
 
-#include "config.h"
 #include "ciphers.h"
 
 #include <stdbool.h>

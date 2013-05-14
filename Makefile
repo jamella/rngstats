@@ -10,14 +10,24 @@ CIPHERS  := ciphers/aes.o \
             ciphers/arc4.o \
             ciphers/isaac64.o \
             ciphers/salsa20.o
+CIPHERS.c := $(CIPHERS:.o=.c)
 
-all: selftest
+PROGRAMS := selftest
 
-selftest: main.o worker.o ciphertab.o $(CIPHERS)
+all: $(PROGRAMS)
+
+selftest: selftest.o worker.o ciphertab.o $(CIPHERS)
 	$(CC) $(CFLAGS) $^ -o $@
 
-main.o worker.o ciphertab.o $(CIPHERS): ciphers.h
-main.o worker.o: worker.h
+selftest.o worker.o ciphertab.o $(CIPHERS): ciphers.h
+selftest.o worker.o: worker.h
 
-ciphertab.c: gen-ciphertab $(CIPHERS:.o=.c)
-	$(SHELL) gen-ciphertab ciphertab.c $(CIPHERS:.o=.c)
+ciphertab.c: gen-ciphertab $(CIPHERS.c)
+	$(SHELL) gen-ciphertab ciphertab.c $(CIPHERS.c)
+
+clean:
+	-rm -f selftest.o worker.o ciphertab.o $(CIPHERS)
+	-rm -f $(PROGRAMS)
+	-rm -f ciphertab.c
+
+.PHONY: all clean

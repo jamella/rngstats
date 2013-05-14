@@ -17,9 +17,10 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "config.h"
-#include "ciphers.h"
+#define _POSIX_C_SOURCE 200809L /* clock_gettime */
+
 #include "worker.h"
+#include "ciphers.h"
 
 #include <time.h>
 #include <string.h>
