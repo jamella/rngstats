@@ -12,15 +12,19 @@ CIPHERS  := ciphers/aes.o \
             ciphers/salsa20.o
 CIPHERS.c := $(CIPHERS:.o=.c)
 
-PROGRAMS := selftest
+PROGRAMS := selftest stats-serial
 
 all: $(PROGRAMS)
 
 selftest: selftest.o worker.o ciphertab.o $(CIPHERS)
 	$(CC) $(CFLAGS) $^ -o $@
 
-selftest.o worker.o ciphertab.o $(CIPHERS): ciphers.h
-selftest.o worker.o: worker.h
+stats-serial: stats-serial.o dataset.o worker.o ciphertab.o $(CIPHERS)
+	$(CC) $(CFLAGS) $^ -o $@
+
+stats-serial.o selftest.o worker.o ciphertab.o $(CIPHERS): ciphers.h
+stats-serial.o selftest.o worker.o: worker.h
+stats-serial.o dataset.o: dataset.h
 
 ciphertab.c: gen-ciphertab $(CIPHERS.c)
 	$(SHELL) gen-ciphertab ciphertab.c $(CIPHERS.c)

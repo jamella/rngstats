@@ -1,5 +1,5 @@
 /*
- *  RNGstats worker bee.
+ * RNGstats: dataset reading and writing.
  *  Copyright 2013 Zack Weinberg <zackw@panix.com>
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -17,39 +17,33 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef WORKERS_H__
-#define WORKERS_H__
+#ifndef DATASET_H__
+#define DATASET_H__
 
 #include "config.h"
+#include "ciphers.h"
+
 #include <stdint.h>
+#include <stdbool.h>
 
-/* Data input to each worker, telling it what to do. */
 typedef struct
 {
-    /* Process key indices BASE through LIMIT. */
-    uint64_t base;
-    uint64_t limit;
-
-    /* Operate on the cipher at this index in all_ciphers.  */
     uint32_t cipher_index;
-} work_order;
+    uint64_t highest_key;
 
-/* Data output from each worker. */
-typedef struct
-{
-    /* Time elapsed to process the block, in nanoseconds. */
-#ifdef DETAILED_TIMINGS
-    uint64_t overhead_ns;
-    uint64_t cipher_ns;
-    uint64_t stats_ns;
-#endif
-    uint64_t elapsed_ns;
+    uint64_t aggregate[KEYSTREAM_LENGTH][256];
+}
+dataset;
 
-    /* Statistics output.  */
-    uint16_t stats[KEYSTREAM_LENGTH][256];
-} work_results;
+/* Read a data set from file FNAME into DATA.  On success, returns
+   true.  If FNAME does not exist or is empty, returns false and does
+   not modify DATA.  On any other error condition, terminates the
+   program. */
+extern bool read_dataset(const char *fname, dataset *data);
 
-extern void worker_run(const work_order *in, work_results *out);
+/* Write a data set to a file named FNAME.  Succeeds or else
+   terminates the program.  */
+extern void write_dataset(const char *fname, const dataset *data);
 
 #endif
 

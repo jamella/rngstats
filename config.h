@@ -1,5 +1,5 @@
 /*
- *  RNGstats worker bee.
+ *  RNGstats - compile-time parameters.
  *  Copyright 2013 Zack Weinberg <zackw@panix.com>
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -17,41 +17,18 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef WORKERS_H__
-#define WORKERS_H__
+#ifndef CONFIG_H__
+#define CONFIG_H__
 
-#include "config.h"
-#include <stdint.h>
+/* We analyze the first KEYSTREAM_LENGTH bytes of keystream produced
+   by each key.  */
+#define KEYSTREAM_LENGTH 65536ul
 
-/* Data input to each worker, telling it what to do. */
-typedef struct
-{
-    /* Process key indices BASE through LIMIT. */
-    uint64_t base;
-    uint64_t limit;
+/* Change #undef to #define to get more detailed timing statistics out
+   of the worker bees. */
+#undef DETAILED_STATISTICS
 
-    /* Operate on the cipher at this index in all_ciphers.  */
-    uint32_t cipher_index;
-} work_order;
-
-/* Data output from each worker. */
-typedef struct
-{
-    /* Time elapsed to process the block, in nanoseconds. */
-#ifdef DETAILED_TIMINGS
-    uint64_t overhead_ns;
-    uint64_t cipher_ns;
-    uint64_t stats_ns;
-#endif
-    uint64_t elapsed_ns;
-
-    /* Statistics output.  */
-    uint16_t stats[KEYSTREAM_LENGTH][256];
-} work_results;
-
-extern void worker_run(const work_order *in, work_results *out);
-
-#endif
+#endif /* config.h */
 
 /*
  * Local Variables:
