@@ -220,6 +220,7 @@ salsa20_gen_keystream(void *ctx_, size_t offset,
                 return;
         }
 
+        i = 0;
         ctx->input[8]++;
         if (!ctx->input[8])
             ctx->input[9]++;

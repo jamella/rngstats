@@ -13,10 +13,11 @@ CIPHERS  := ciphers/aes.o \
 
 all: selftest
 
-selftest: main.o ciphertab.o $(CIPHERS)
+selftest: main.o worker.o ciphertab.o $(CIPHERS)
 	$(CC) $(CFLAGS) $^ -o $@
 
-main.o ciphertab.o $(CIPHERS): ciphers.h
+main.o worker.o ciphertab.o $(CIPHERS): ciphers.h
+main.o worker.o: worker.h
 
 ciphertab.c: gen-ciphertab $(CIPHERS:.o=.c)
 	$(SHELL) gen-ciphertab ciphertab.c $(CIPHERS:.o=.c)

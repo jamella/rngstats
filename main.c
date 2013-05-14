@@ -19,8 +19,12 @@
 
 #include "config.h"
 #include "ciphers.h"
+#include "worker.h"
 
 #include <stdio.h>
+
+static work_order wo;
+static work_results wr;
 
 int
 main(void)
@@ -28,10 +32,28 @@ main(void)
     int i;
     for (i = 0; all_ciphers[i]; i++)
     {
-        fprintf(stderr, "SELFTEST: %s...", all_ciphers[i]->name);
+        fprintf(stderr, "SELFTEST: %11s... ", all_ciphers[i]->name);
         all_ciphers[i]->selftest();
         fputs("ok\n", stderr);
     }
+
+    for (i = 0; all_ciphers[i]; i++)
+    {
+        wo.base  = 0;
+        wo.limit = 1024;
+        wo.cipher_index = i;
+
+        fprintf(stderr, "TIME: %11s... ", all_ciphers[i]->name);
+        worker_run(&wo, &wr);
+        fprintf(stderr, "c=%.6f s=%.6f o=%.6f -> %.3f keys/s\n",
+                ((double)wr.cipher_ns) * 1e-6,
+                ((double)wr.stats_ns) * 1e-6,
+                ((double)wr.overhead_ns) * 1e-6,
+                1.0 / (((double)(wr.cipher_ns + wr.stats_ns + wr.overhead_ns)
+                        / 1024) * 1e-9)
+                );
+    }
+
     return 0;
 }
 
