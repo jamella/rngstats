@@ -32,7 +32,7 @@ main(void)
     int i;
     for (i = 0; all_ciphers[i]; i++)
     {
-        fprintf(stderr, "SELFTEST: %11s... ", all_ciphers[i]->name);
+        fprintf(stderr, "KAT:  %11s... ", all_ciphers[i]->name);
         all_ciphers[i]->selftest();
         fputs("ok\n", stderr);
     }
@@ -40,18 +40,30 @@ main(void)
     for (i = 0; all_ciphers[i]; i++)
     {
         wo.base  = 0;
-        wo.limit = 1024;
+        wo.limit = 2000;
         wo.cipher_index = i;
 
         fprintf(stderr, "TIME: %11s... ", all_ciphers[i]->name);
         worker_run(&wo, &wr);
-        fprintf(stderr, "c=%.6f s=%.6f o=%.6f -> %.3f keys/s\n",
+#ifdef DETAILED_STATISTICS
+        fprintf(stderr,
+                "%zu keys, c=%9.2fms, s=%9.2fms o=%9.2fms -> %.3f keys/s\n",
+                wo.limit - wo.base,
                 ((double)wr.cipher_ns) * 1e-6,
                 ((double)wr.stats_ns) * 1e-6,
                 ((double)wr.overhead_ns) * 1e-6,
-                1.0 / (((double)(wr.cipher_ns + wr.stats_ns + wr.overhead_ns)
-                        / 1024) * 1e-9)
+                (wo.limit - wo.base) /
+                ((double)(wr.elapsed_ns) * 1e-9)
                 );
+#else
+        fprintf(stderr,
+                "%zu keys, %9.5fs -> %8.3f keys/s\n",
+                wo.limit - wo.base,
+                (double)(wr.elapsed_ns) * 1e-9,
+                (wo.limit - wo.base) /
+                ((double)(wr.elapsed_ns) * 1e-9)
+                );
+#endif
     }
 
     return 0;

@@ -60,6 +60,13 @@ interval(struct timespec *start)
     return delta;
 }
 
+#define INTERVAL(tag, start) do { (tag) += interval(&(start)); } while (0)
+#ifdef DETAILED_STATISTICS
+#define DINTERVAL(tag, start) INTERVAL(tag, start)
+#else
+#define DINTERVAL(tag, start) do { } while (0)
+#endif
+
 void
 worker_run(const work_order *in, work_results *out)
 {
@@ -88,7 +95,7 @@ worker_run(const work_order *in, work_results *out)
         aes128_cipher.gen_keystream(keygen_ctx, i * ciph->keysize,
                                     stream_key, ciph->keysize);
 
-        out->overhead_ns += interval(&start);
+        DINTERVAL(out->overhead_ns, start);
 
         ciph->init(stream_ctx, stream_key);
 
@@ -96,14 +103,16 @@ worker_run(const work_order *in, work_results *out)
         {
             ciph->gen_keystream(stream_ctx, j, stream_block, BLOCKSIZE);
 
-            out->cipher_ns += interval(&start);
+            DINTERVAL(out->cipher_ns, start);
 
             for (k = 0; k < BLOCKSIZE; k++)
                 out->stats[j+k][stream_block[k]] += 1;
 
-            out->stats_ns += interval(&start);
+            DINTERVAL(out->stats_ns, start);
         }
     }
+
+    INTERVAL(out->elapsed_ns, start);
 }
 
 /*
