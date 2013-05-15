@@ -12,25 +12,35 @@ CIPHERS  := ciphers/aes.o \
             ciphers/salsa20.o
 CIPHERS.c := $(CIPHERS:.o=.c)
 
-PROGRAMS := selftest stats-serial
+PROGRAMS := cipher-test dataset-test stats-serial
 
 all: $(PROGRAMS)
 
-selftest: selftest.o worker.o ciphertab.o $(CIPHERS)
+cipher-test: cipher-test.o worker.o ciphertab.o $(CIPHERS)
 	$(CC) $(CFLAGS) $^ -o $@
+
+dataset-test: dataset-test.o dataset.o ciphertab.o $(CIPHERS)
+	$(CC) $(CFLAGS) $^ -o $@ -lhdf5
 
 stats-serial: stats-serial.o dataset.o worker.o ciphertab.o $(CIPHERS)
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@ -lhdf5
 
-stats-serial.o selftest.o worker.o ciphertab.o $(CIPHERS): ciphers.h
-stats-serial.o selftest.o worker.o: worker.h
-stats-serial.o dataset.o: dataset.h
+
+DATASET_H := dataset.h config.h
+WORKER_H  := worker.h config.h
+
+stats-serial.o cipher-test.o worker.o dataset.o: ciphers.h
+ciphertab.o $(CIPHERS): ciphers.h
+stats-serial.o cipher-test.o worker.o: $(WORKER_H)
+stats-serial.o dataset.o dataset-test.o: $(DATASET_H)
 
 ciphertab.c: gen-ciphertab $(CIPHERS.c)
 	$(SHELL) gen-ciphertab ciphertab.c $(CIPHERS.c)
 
 clean:
-	-rm -f selftest.o worker.o ciphertab.o $(CIPHERS)
+	-rm -f dataset.o worker.o ciphertab.o cipher-test.o dataset-test.o
+	-rm -f stats-serial.o
+	-rm -f $(CIPHERS)
 	-rm -f $(PROGRAMS)
 	-rm -f ciphertab.c
 

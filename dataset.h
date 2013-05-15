@@ -21,7 +21,6 @@
 #define DATASET_H__
 
 #include "config.h"
-#include "ciphers.h"
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -31,7 +30,7 @@ typedef struct
     uint32_t cipher_index;
     uint64_t highest_key;
 
-    uint64_t aggregate[KEYSTREAM_LENGTH][256];
+    uint32_t epmf[KEYSTREAM_LENGTH][256];
 }
 dataset;
 
@@ -39,11 +38,11 @@ dataset;
    true.  If FNAME does not exist or is empty, returns false and does
    not modify DATA.  On any other error condition, terminates the
    program. */
-extern bool read_dataset(const char *fname, dataset *data);
+extern bool dataset_read(const char *fname, dataset *data);
 
 /* Write a data set to a file named FNAME.  Succeeds or else
    terminates the program.  */
-extern void write_dataset(const char *fname, const dataset *data);
+extern void dataset_write(const char *fname, const dataset *data);
 
 #endif
 

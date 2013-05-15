@@ -32,7 +32,7 @@ update_dataset(dataset *data, work_results *wr)
     uint64_t i, j;
     for (i = 0; i < KEYSTREAM_LENGTH; i++)
         for (j = 0; j < 256; j++)
-            data->aggregate[i][j] += wr->stats[i][j];
+            data->epmf[i][j] += wr->stats[i][j];
 }
 
 int
@@ -52,7 +52,7 @@ main(int argc, char **argv)
     if (endp == argv[2] || *endp != '\0' || count == 0)
         errx(2, "key count must be a positive integer");
 
-    read_dataset(argv[1], &data);
+    dataset_read(argv[1], &data);
 
     base  = data.highest_key;
     limit = base + count;
@@ -73,7 +73,7 @@ main(int argc, char **argv)
         base = wo.limit;
     }
     data.highest_key = limit;
-    write_dataset(argv[1], &data);
+    dataset_write(argv[1], &data);
     return 0;
 }
 

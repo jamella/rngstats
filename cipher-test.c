@@ -1,5 +1,5 @@
 /*
- *  RNGstats selftest program.
+ *  RNGstats cipher known-answer test and benchmark.
  *  Copyright 2013 Zack Weinberg <zackw@panix.com>
  *
  *  This program is free software; you can redistribute it and/or modify
