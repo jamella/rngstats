@@ -46,7 +46,7 @@ typedef struct
     uint64_t elapsed_ns;
 
     /* Statistics output.  */
-    uint16_t stats[KEYSTREAM_LENGTH][256];
+    uint32_t stats[KEYSTREAM_LENGTH][256];
 } work_results;
 
 extern void worker_run(const work_order *in, work_results *out);

@@ -3,5 +3,7 @@
 *.o
 *.hdf
 /ciphertab.c
-/selftest
+/cipher-test
+/dataset-test
+/stats-mpi
 /stats-serial
