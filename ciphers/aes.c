@@ -34,6 +34,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+_Static_assert(sizeof(size_t) <= 16,
+               "aes_gen_keystream requires size_t smaller than 16b");
+
 typedef struct
 {
     int nr;                     /*!<  number of rounds  */
@@ -367,11 +370,6 @@ aes_gen_keystream(void *ctx_, size_t offset,
 
     if (olen == 0)
         return;
-
-    /* Initialize the counter to a 128-bit big-endian count of the
-       number of 128-bit cipher blocks already consumed at OFFSET.  */
-    if (sizeof(size_t) > 16)
-        abort();
 
     memset(counter, 0, 16);
     offset_128b = offset / 16;
