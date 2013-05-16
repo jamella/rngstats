@@ -24,10 +24,6 @@
    by each key.  */
 #define KEYSTREAM_LENGTH 65536ul
 
-/* Change #undef to #define to get more detailed timing statistics out
-   of the worker bees. */
-#undef DETAILED_STATISTICS
-
 #endif /* config.h */
 
 /*

@@ -37,16 +37,7 @@ typedef struct
 /* Data output from each worker. */
 typedef struct
 {
-    /* Time elapsed to process the block, in nanoseconds. */
-#ifdef DETAILED_TIMINGS
-    uint64_t overhead_ns;
-    uint64_t cipher_ns;
-    uint64_t stats_ns;
-#endif
-    uint64_t elapsed_ns;
-
-    /* Statistics output.  */
-    uint32_t stats[KEYSTREAM_LENGTH][256];
+    uint32_t epmf[KEYSTREAM_LENGTH][256];
 } work_results;
 
 extern void worker_run(const work_order *in, work_results *out);

@@ -17,12 +17,9 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#define _POSIX_C_SOURCE 200809L /* clock_gettime */
-
 #include "worker.h"
 #include "ciphers.h"
 
-#include <time.h>
 #include <string.h>
 
 /* Nothing up my sleeve: first 32 hexadecimal digits of pi, as
@@ -38,45 +35,12 @@ static const uint8_t keygen_key[16] = {
 _Static_assert(KEYSTREAM_LENGTH % BLOCKSIZE == 0,
                "keystream length must be a multiple of blocksize");
 
-static inline uint64_t
-timedelta_ns(const struct timespec *end,
-             const struct timespec *start)
-{
-    uint64_t delta_s = end->tv_sec - start->tv_sec;
-    long delta_ns    = end->tv_nsec - start->tv_nsec;
-    if (delta_ns < 0)
-        delta_ns += 1000000000L;
-
-    return delta_s * 1000000000L + delta_ns;
-}
-
-static uint64_t
-interval(struct timespec *start)
-{
-    struct timespec end;
-    uint64_t delta;
-    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &end);
-    delta = timedelta_ns(&end, start);
-    *start = end;
-    return delta;
-}
-
-#define INTERVAL(tag, start) do { (tag) += interval(&(start)); } while (0)
-#ifdef DETAILED_STATISTICS
-#define DINTERVAL(tag, start) INTERVAL(tag, start)
-#else
-#define DINTERVAL(tag, start) do { } while (0)
-#endif
-
 void
 worker_run(const work_order *in, work_results *out)
 {
-    struct timespec start;
     const cipher *ciph = all_ciphers[in->cipher_index];
     uint64_t i, j, k;
     uint8_t stream_block[BLOCKSIZE];
-
-    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &start);
 
     uint8_t keygen_ctx[aes128_cipher.ctxsize];
     uint8_t stream_ctx[ciph->ctxsize];
@@ -96,24 +60,16 @@ worker_run(const work_order *in, work_results *out)
         aes128_cipher.gen_keystream(keygen_ctx, i * ciph->keysize,
                                     stream_key, ciph->keysize);
 
-        DINTERVAL(out->overhead_ns, start);
-
         ciph->init(stream_ctx, stream_key);
 
         for (j = 0; j < KEYSTREAM_LENGTH; j += BLOCKSIZE)
         {
             ciph->gen_keystream(stream_ctx, j, stream_block, BLOCKSIZE);
 
-            DINTERVAL(out->cipher_ns, start);
-
             for (k = 0; k < BLOCKSIZE; k++)
-                out->stats[j+k][stream_block[k]] += 1;
-
-            DINTERVAL(out->stats_ns, start);
+                out->epmf[j+k][stream_block[k]] += 1;
         }
     }
-
-    INTERVAL(out->elapsed_ns, start);
 }
 
 /*

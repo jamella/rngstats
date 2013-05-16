@@ -27,6 +27,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 static void
 update_dataset(dataset *data, work_results *wr)
@@ -34,7 +35,30 @@ update_dataset(dataset *data, work_results *wr)
     uint64_t i, j;
     for (i = 0; i < KEYSTREAM_LENGTH; i++)
         for (j = 0; j < 256; j++)
-            data->epmf[i][j] += wr->stats[i][j];
+            data->epmf[i][j] += wr->epmf[i][j];
+}
+
+static inline double
+timedelta_ns(const struct timespec *end,
+             const struct timespec *start)
+{
+    uint64_t delta_s = end->tv_sec - start->tv_sec;
+    long delta_ns    = end->tv_nsec - start->tv_nsec;
+    if (delta_ns < 0)
+        delta_ns += 1000000000L;
+
+    return delta_ns * 1e-9 + delta_s;
+}
+
+static double
+interval(clockid_t clk, struct timespec *start)
+{
+    struct timespec end;
+    double delta;
+    clock_gettime(clk, &end);
+    delta = timedelta_ns(&end, start);
+    *start = end;
+    return delta;
 }
 
 int
@@ -47,6 +71,8 @@ main(int argc, char **argv)
     char *endp, *dataset_name;
     uint64_t base, count, limit;
     uint32_t cipher_index;
+    struct timespec wall;
+    double dwall;
 
     if (argc != 3)
     {
@@ -88,6 +114,8 @@ main(int argc, char **argv)
     base  = data.highest_key;
     limit = base + count;
 
+    clock_gettime(CLOCK_MONOTONIC, &wall);
+
     while (base < limit)
     {
         wo.cipher_index = data.cipher_index;
@@ -97,14 +125,19 @@ main(int argc, char **argv)
         else
             wo.limit = base + UINT16_MAX + 1;
 
-        fprintf(stderr, "block %"PRIu64"--%"PRIu64"...", wo.base, wo.limit-1);
+
         worker_run(&wo, &wr);
-        fprintf(stderr, "%9.5fs\n", ((double)wr.elapsed_ns) * 1e-9);
         update_dataset(&data, &wr);
         base = wo.limit;
+
+        dwall = interval(CLOCK_MONOTONIC, &wall);
+        fprintf(stderr, "%"PRIu64"--%"PRIu64": %9.5fs\n",
+                wo.base, wo.limit-1, dwall);
     }
     data.highest_key = limit;
     dataset_write(dataset_name, &data);
+    dwall = interval(CLOCK_MONOTONIC, &wall);
+    fprintf(stderr, "checkpoint: %9.5fs\n", dwall);
     return 0;
 
     list_ciphers:
