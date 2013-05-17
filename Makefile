@@ -1,10 +1,11 @@
 
 CPPFLAGS := -I.
 
-CFLAGS   := -g -O2 -std=c11 -pedantic -Wall -Wextra -Wbad-function-cast \
--Wchar-subscripts -Wcomment -Wfloat-equal -Wformat -Wmissing-declarations \
--Wmissing-prototypes -Wnested-externs -Wpointer-arith -Wredundant-decls \
--Wstrict-aliasing -Wstrict-prototypes -Wswitch-enum -Wundef -Wwrite-strings
+CFLAGS   := -g -O3 -march=native -mtune=native -flto -fuse-linker-plugin \
+-std=c11 -pedantic -Wall -Wextra -Wbad-function-cast -Wchar-subscripts \
+-Wcomment -Wfloat-equal -Wformat -Wmissing-declarations -Wmissing-prototypes \
+-Wnested-externs -Wpointer-arith -Wredundant-decls -Wstrict-aliasing \
+-Wstrict-prototypes -Wswitch-enum -Wundef -Wwrite-strings
 
 CFLAGS.mpi := $(shell mpicc --showme:compile)
 LIBS.mpi   := $(filter-out -L/usr//lib,$(shell mpicc --showme:link))
