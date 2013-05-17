@@ -168,7 +168,7 @@ head_process(int numprocs, const char *dataset_name,
 
     if (since_last_checkpoint)
     {
-        data->highest_key = base + count;
+        data->highest_key = base + sofar;
         dataset_write(dataset_name, data);
         dwall = interval(CLOCK_MONOTONIC, &wall);
         fprintf(stderr, "checkpoint: %9.5fs\n", dwall);
