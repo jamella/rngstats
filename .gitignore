@@ -1,7 +1,6 @@
 *~
 #*#
 *.o
-*.hdf
 /ciphertab.c
 /cipher-test
 /dataset-test
